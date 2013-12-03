@@ -1,0 +1,6 @@
+cron:
+    
+- description: sunday cleance
+  url: /cron/sunday
+  timezone: Europe/Copenhagen
+  schedule: every sunday 22:00

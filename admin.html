@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+{% autoescape true %}
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pizza Fredag Admin Area</title>
+	<link href="/css/main.css" rel="stylesheet" media="screen">
+	<script src="/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+	<script src="/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+	
+<a href="{{ logout_url }}">Logout {{ nick }}</a>
+
+<br /><br />
+
+<h1>Add eater</h1>
+<form action="/admin/add_eater" method="post" accept-charset="utf-8">
+	<p>Firstname: <input type="text" name="firstname" value="" id="firstname"></p>
+	<p>Lastname: <input type="text" name="lastname" value="" id="lastname"></p>
+	<p>Email: <input type="text" name="email" value="" id="email"></p>
+	<p><input type="submit" value="Continue &rarr;"></p>
+</form>
+
+<br />
+<hr />
+<br />
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Eater:</th><th>Points:</th><th>Last Fetch:</th><th>Remove eater</th></tr>
+	{% for e in eaters_all_points %}
+		<tr><td>{{ e.name }}</td><td>{{ e.points }}</td><td>{{ e.last_fetch }}</td><td><a class="remove" href="/admin/remove_eater/{{ e.key.id() }}">Remove</a></td></tr>
+	{% endfor %}
+</table>
+
+<br />
+<hr />
+<br />
+
+<h1>Find Fetcher</h1>
+<form action="/admin/find_fetcher" method="get" accept-charset="utf-8">
+	<p><input type="submit" value="Its Time - Lets lock the list of eaters and fetch some pizza!! &rarr;"></p>
+</form>
+
+<br />
+<hr />
+<br />
+
+<h1>Clear Friday</h1>
+<form action="/admin/clear_friday" method="post" accept-charset="utf-8">
+	<select name="whoFetched" id="whoFetched">
+		{% for e in eaters_all_points %}
+			<option value="{{ e.key.id() }}">{{ e.name }}</option>
+		{% endfor %}
+	</select>
+	<p><input class="remove" type="submit" value="Clear! &rarr;"></p>
+</form>
+
+</body>
+</html>
+{% endautoescape %}

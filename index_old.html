@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+{% autoescape true %}
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pizza Fredag</title>
+	
+	<link href="/css/bootstrap.css" rel="stylesheet" media="screen">
+	<link href="/css/main.css" rel="stylesheet" media="screen">
+	<script src="/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+	<script src="/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="jumbotron">
+  <h1>Pizza Friday <small class="text-warning">Rigshospitalet <span class="text-danger">3982</span></small></h1>
+  <div>Next Pizza Friday: <span class="text-info">{{ date }}</span></div>
+  <ul class="nav nav-pills nav-stacked">
+  <li class="active">
+      Registered: <span class="text-success">42</span>
+  </li>
+  </ul>
+</div>
+
+<div class="jumbotron">
+	<form role="form" action="/register" method="post" accept-charset="utf-8">
+	<h2>Register yourself for pizza</h2>
+	<div class="row">
+		<div class="col-xs-5 boxg">
+		<div class="btn-group" id="howmany">
+			<button id="onepers" type="button" class="btn btn-primary btn-lg" name="onepers" value="test">1 person</button>
+			<button id="oneperscantfetch" type="button" class="btn btn-warning btn-lg">1 person - unable to fetch</button>
+			<button id="multpers" type="button" class="btn btn-success btn-lg">Multiple persons</button>
+		</div>
+		</div>
+		<div class="col-xs-6">
+		<input type="comment" class="form-control commentbox" id="numguests" placeholder="Enter number of guests" />
+		</div>
+	</div>
+	
+	<br />
+	<input type="comment" class="form-control commentbox" id="comment" name="comment" placeholder="Enter comment" />
+	<br />
+	<button type="submit" class="btn btn-danger btn-lg btn-block">Tilmeld</button>
+	</form>
+</div>
+
+</body>
+</html>
+{% endautoescape %}

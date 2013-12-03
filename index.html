@@ -1,117 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 {% autoescape true %}
-<html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Pizza Fredag</title>
-	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-	<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
-	<script src="js/bootstrap.min.js"></script>
+	<link href="/css/main.css" rel="stylesheet" media="screen">
+	<script src="/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+	<script src="/js/main.js" type="text/javascript"></script>
 </head>
 <body>
-<div class="jumbotron">
-  <h1>Pizza Fredag <small class="text-warning">Rigshospitalet <span class="text-danger">3982</span></small></h1>
-  <div>Næste pizza fredag: <span class="text-info">{{ date }}</span></div>
-  <ul class="nav nav-pills nav-stacked">
-  <li class="active">
-      Tilmeldte: <span class="text-success">42</span>
-  </li>
-  </ul>
-</div>
 
-<div class="jumbotron">
-	<h2>Tilmeld dig til pizza</h2>
-	<div class="btn-group" id="test">
-		
-		<button type="button" class="btn btn-primary btn-lg">1 person</button>
-		<button type="button" class="btn btn-warning btn-lg">1 person - kan ikke hente</button>
-		<div class="btn-group dropup">
-			<button class="btn btn-success btn-lg dropdown-toggle" type="button" data-toggle="dropdown">
-				Flere personer <span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu">
-				<li><a href="#">Mig + 1</a></li>
-				<li><a href="#">Mig + 2</a></li>
-				<li><a href="#">Mig + 3</a></li>
-				<li><a href="#">Mig + 4</a></li>
-				<li><a href="#">Mig + 5</a></li>
-				<li><a href="#">Mig + 6</a></li>
-				<li><a href="#">Mig + 7</a></li>
-				<li><a href="#">Mig + 8</a></li>
-				<li><a href="#">Mig + 9</a></li>
-				<li><a href="#">Mig + 10</a></li>
-			</ul>
-		</div>
-	</div>
-</div>
 
-<!-- <div class="row">
-<div class="col-md-9 jumbotron" align="center">
-    <form action="/create_friday" method="post" class="form-inline" role="form">
-	  <div class="form-group">
-		  <select id="month_start" name="month_start" class="form-control" /> 
-		    <option>January</option>       
-		    <option>February</option>       
-		    <option>March</option>       
-		    <option>April</option>       
-		    <option>May</option>       
-		    <option>June</option>       
-		    <option>July</option>       
-		    <option>August</option>       
-		    <option>September</option>       
-		    <option>October</option>       
-		    <option>November</option>       
-		    <option>December</option>       
-		  </select>
-	  </div>
-	  <div class="form-group">
-		  <select id="day_start" name="day_start" class="form-control" /> 
-		    <option>1</option>       
-		    <option>2</option>       
-		    <option>3</option>       
-		    <option>4</option>       
-		    <option>5</option>       
-		    <option>6</option>       
-		    <option>7</option>       
-		    <option>8</option>       
-		    <option>9</option>       
-		    <option>10</option>       
-		    <option>11</option>       
-		    <option>12</option>       
-		    <option>13</option>       
-		    <option>14</option>       
-		    <option>15</option>       
-		    <option>16</option>       
-		    <option>17</option>       
-		    <option>18</option>       
-		    <option>19</option>       
-		    <option>20</option>       
-		    <option>21</option>       
-		    <option>22</option>       
-		    <option>23</option>       
-		    <option>24</option>       
-		    <option>25</option>       
-		    <option>26</option>       
-		    <option>27</option>       
-		    <option>28</option>       
-		    <option>29</option>       
-		    <option>30</option>       
-		    <option>31</option>       
-		  </select>
-	  </div>
-	  <div class="form-group">
-		  <select id="year_start" name="year_start" class="form-control" />     
-		    <option>2013</option>       
-		    <option>2014</option>              
-		  </select>
-	  </div>
-	  <div class="form-group">
-		<input type="submit" class="btn btn-default" value="Opret Fredag">
-	  </div>
-    </form>
-</div>
-</div> -->
+<form action="/register" method="post" accept-charset="utf-8">
+	<input type="password" name="password" value="" id="password"><br>
+	<select name="attendee" id="attendee">
+		{% for e in eaters %}
+		{% if e.wants == False %}
+			<option value="{{ e.key.id() }}">{{ e.name }}</option>
+		{% endif %}
+		{% endfor %}
+	</select>
+	<br>
+	<input type="radio" id="persons1" name="persons" value="1" checked>1 person<br>
+	<input type="radio" id="personsx" name="persons" value="x">1 person - not able to buy<br>
+	<input type="radio" id="persons2" name="persons" value="2">multiple persons<br>
+	<select name="numguests" id="numguests">
+		<option value="1">You +1</option>
+		<option value="2">You +2</option>
+		<option value="3">You +3</option>
+		<option value="4">You +4</option>
+		<option value="5">You +5</option>
+		<option value="6">You +6</option>
+		<option value="7">You +7</option>
+		<option value="8">You +8</option>
+		<option value="9">You +9</option>
+	</select><br>
+	<input type="text" name="comment" value="" id="comment"><br>
+	<p><input type="submit" value="Register &rarr;"></p>
+</form>
+
+<hr />
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Navn</th><th>Can buy?</th><th>Extra?</th><th>Comment:</th><th>Points:</th><th>Last Fetch:</th></tr>
+{% for e in eaters_points %}
+	<tr>
+		<td>{{ e.name }}</td>
+		<td>
+		{% if not e.able_to_get %}
+			 <small>No</small>
+		{% endif %}
+		</td>
+		<td>
+		{% if e.extra != None %}
+			 +{{ e.extra}}
+		{% endif %}
+		</td>
+		<td>{{ e.remark }}</td>
+		<td>{{ e.points }}</td>
+		<td>{{ e.last_fetch }}</td>
+		<td><a class="remove" href="/de_register/{{ e.key.id() }}">Remove</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+<hr />
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Eater:</th><th>Points:</th><th>Last Fetch:</th></tr>
+	{% for e in eaters_all_points %}
+		<tr><td>{{ e.name }}</td><td>{{ e.points }}</td><td>{{ e.last_fetch }}</td></tr>
+	{% endfor %}
+</table>
 
 </body>
 </html>

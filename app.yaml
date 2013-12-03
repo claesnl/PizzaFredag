@@ -14,6 +14,10 @@ handlers:
   
 - url: /js
   static_dir: js
+  
+- url: /cron/sunday
+  script: main.app
+  login: admin
 
 - url: .*
   script: main.app

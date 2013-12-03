@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+{% autoescape true %}
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pizza Fredag</title>
+	<link href="/css/main.css" rel="stylesheet" media="screen">
+	<script src="/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+	<script src="/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+
+Hello {{ fetcher }}, You need to buy food for {{ nrOfPizzas }} people. All names and their comments is shown below. Enjoy!
+<br />
+<ul>
+{% for e in eaters %}
+	<li>{{ e.name }}
+	{% if e.extra != None %}
+		(+ {{ e.extra }})
+	{% endif %}
+	{% if e.remark != '' %}
+		("{{ e.remark }}")
+	{% endif %}
+	</li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+{% endautoescape %}

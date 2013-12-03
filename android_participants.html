@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+{% autoescape true %}
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pizza Fredag</title>
+	<link href="/css/main.css" rel="stylesheet" media="screen">
+	<script src="/js/jquery-1.10.2.min.js" type="text/javascript"></script>
+	<script src="/js/main.js" type="text/javascript"></script>
+</head>
+<body>
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Navn</th><th>Can buy?</th><th>Extra?</th><th>Comment:</th><th>Points:</th><th>Last Fetch:</th></tr>
+{% for e in eaters_points %}
+	<tr>
+		<td>{{ e.name }}</td>
+		<td>
+		{% if not e.able_to_get %}
+			 <small>No</small>
+		{% endif %}
+		</td>
+		<td>
+		{% if e.extra != None %}
+			 +{{ e.extra}}
+		{% endif %}
+		</td>
+		<td>{{ e.remark }}</td>
+		<td>{{ e.points }}</td>
+		<td>{{ e.last_fetch }}</td>
+	</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
+{% endautoescape %}
