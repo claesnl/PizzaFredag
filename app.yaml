@@ -18,7 +18,11 @@ handlers:
 - url: /js
   static_dir: js
   
-- url: /cron/sunday
+- url: /cron/find_fetcher
+  script: main.app
+  login: admin
+  
+- url: /cron/give_points
   script: main.app
   login: admin
 

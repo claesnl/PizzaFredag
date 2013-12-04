@@ -6,41 +6,30 @@
 
 <div class="table-responsive">
 	<table id="fetch_table" class="table">
-		<tr>
-			<th>Navn</th>
-			<th>Can buy?</th>
-			<th>Extra?</th>
-			<th>Comment:</th>
-			<th>Points:</th>
-			<th>Last Fetch:</th>
-			<th>De-register:</th>
-		</tr>
 		{% for e in eaters_points %}
-			{% if fetcher.key.id == e.key.id %}
+			{% if fetcher != None and fetcher.key.id == e.key.id %}
 				<tr class="success">
 			{% else %}
 				<tr>
 			{% endif %}
-			<td>
+			<td>{{ e.points }}</td>
+			{% if not e.able_to_get %}
+		 		<td class="no_can_get">
+			{% else %}
+				<td>
+			{% endif %}
 				{{ e.name }}
 				{% if last_fetcher == e.key.id %}
-					(Bought last time)
+					(Last)
 				{% endif %}
-			</td>
-			<td>
-				{% if not e.able_to_get %}
-			 		<small>No</small>
-				{% endif %}
-			</td>
-			<td>
 				{% if e.extra != None %}
-			 		+{{ e.extra}}
+			 		(+{{ e.extra}})
 				{% endif %}
+				<br />
+				{{ e.remark }}
 			</td>
-			<td>{{ e.remark }}</td>
-			<td>{{ e.points }}</td>
-			<td>{{ e.last_fetch }}</td>
-			<td><a class="remove" href="/de_register/{{ e.key.id() }}">Remove</a></td>
+			<td><tiny>{{ e.last_fetch }}</tiny></td>
+			<td><a class="remove" href="/de_register/{{ e.key.id() }}">x</a></td>
 		</tr>
 		{% endfor %}
 	</table>

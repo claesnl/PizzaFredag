@@ -39,3 +39,11 @@ html .pizzafriday {
 .pizzafriday #main_middle h2 {
   font-size: 28px;
 }
+
+.no_can_get{
+	color: #990000;
+}
+
+tiny{
+	font-size: 10px;
+}

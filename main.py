@@ -25,6 +25,8 @@ import urllib
 import jinja2
 import cgi
 import datetime
+import time
+import locale
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -39,6 +41,8 @@ class PizzaEaters(ndb.Model):
 	extra = ndb.IntegerProperty()
 	remark = ndb.StringProperty()
 	mail = ndb.StringProperty()
+	nr_of_fetches = ndb.IntegerProperty(default=0)
+	nr_of_participatiens = ndb.IntegerProperty(default=0)
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -81,6 +85,7 @@ class ShowParticipants(webapp2.RequestHandler):
 		
 class SignUpForPizza(webapp2.RequestHandler):
     def get(self):		
+		self.response.write(locale.getlocale())
 		eaters = PizzaEaters.query().order(PizzaEaters.name)
 		template_values = {
 			'eaters': eaters,
@@ -93,14 +98,19 @@ class SignUpForPizza(webapp2.RequestHandler):
 		self.response.write(header.render())
 		header2 = JINJA_ENVIRONMENT.get_template('header_signup.html')
 		self.response.write(header2.render(template_values2))
-		template = JINJA_ENVIRONMENT.get_template('sign_up.html')
-		self.response.write(template.render(template_values))
+		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
+		if(datetime.datetime.today().weekday() == 3 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 3): #+1 for GB time. 
+			template = JINJA_ENVIRONMENT.get_template('sign_up_too_late.html')
+			self.response.write(template.render())
+		else:
+			template = JINJA_ENVIRONMENT.get_template('sign_up.html')
+			self.response.write(template.render(template_values))
 		footer = JINJA_ENVIRONMENT.get_template('footer.html')
 		self.response.write(footer.render())	
 		
 class ShowEaters(webapp2.RequestHandler):
     def get(self):		
-		eaters_all_points = PizzaEaters.query().order(-PizzaEaters.points)
+		eaters_all_points = PizzaEaters.query().order(-PizzaEaters.points).order(PizzaEaters.last_fetch)
 		template_values = {
 			'eaters_all_points': eaters_all_points
 	    }
@@ -163,41 +173,75 @@ class AdminHandler(webapp2.RequestHandler):
 class ClearFriday(webapp2.RequestHandler):
 	def post(self):
 		if users.is_current_user_admin():
-
-			fetcher = PizzaEaters.get_by_id(int(cgi.escape(self.request.get('whoFetched'))))
-							
-			eaters = PizzaEaters.query(PizzaEaters.wants == True)
-			for e in eaters:
-				points_change = 5
-				if not e.able_to_get:
-					points_change += 1
-				e.points = e.points + points_change
-				e.wants = False
-				e.remark = ''
-				e.extra = None
-				e.put()
-			fetcher.points = 0
-			fetcher.last_fetch = datetime.date.today()
-			fetcher.put()
-			self.redirect('/admin')
+			if PizzaEaters.query(PizzaEaters.wants == True).count() > 0:
+				fetcher = PizzaEaters.get_by_id(int(cgi.escape(self.request.get('whoFetched'))))		
+				eaters = PizzaEaters.query(PizzaEaters.wants == True)
+				for e in eaters:
+					points_change = 5
+					if not e.able_to_get:
+						points_change += 1
+					e.points += points_change
+					e.wants = False
+					e.remark = ''
+					e.extra = None
+					e.nr_of_participatiens += 1
+					e.put()
+				fetcher.points = 0
+				fetcher.last_fetch = datetime.date.today()
+				fetcher.nr_of_fetches += 1
+				fetcher.put()
+				self.redirect('/admin')
 			
 class CronClearFriday(webapp2.RequestHandler):
 	def get(self):
-		if users.is_current_user_admin():
-			fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()			
-			eaters = PizzaEaters.query(PizzaEaters.wants == True)
-			for e in eaters:
-				points_change = 5
-				if not e.able_to_get:
-					points_change += 1
-				e.points = e.points + points_change
-				e.wants = False
-				e.remark = ''
-				e.extra = None
-				e.put()
-			fetcher.points = 0
-			fetcher.last_fetch = datetime.date.today()
-			fetcher.put()
+		if PizzaEaters.query(PizzaEaters.wants == True).count() == 0:
+			return
+		fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()			
+		eaters = PizzaEaters.query(PizzaEaters.wants == True)
+		for e in eaters:
+			points_change = 5
+			if not e.able_to_get:
+				points_change += 1
+			e.points = e.points + points_change
+			e.wants = False
+			e.remark = ''
+			e.extra = None
+			e.nr_of_participatiens += 1
+			e.put()
+		fetcher.points = 0
+		fetcher.last_fetch = datetime.date.today()
+		fetcher.nr_of_fetches += 1
+		fetcher.put()
+			
+class CronFindFetcher(webapp2.RequestHandler):
+	def get(self):
+		if PizzaEaters.query(PizzaEaters.wants == True).count() == 0:
+			return			
+		fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()
+		if fetcher == None:
+			fetcher = PizzaEaters.query(PizzaEaters.wants == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()
+			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+			              to="Claes Ladefoged <claesnl@gmail.com>",
+			              subject="PizzaFridag: No one volunteered.",
+			              body="Who fetched then (according to system): "+fetcher.name+"\nEmail: "+fetcher.mail)
+		eaters = PizzaEaters.query(PizzaEaters.wants == True)
+		pizzas = 0
+		msg = ""
+		for e in eaters:
+			pizzas += 1
+			msg += e.name
+			if e.extra != None:
+				pizzas += e.extra
+				msg += " (+"+str(e.extra)+" extra guests)"
+			if e.remark != '':
+				msg += " Comment: "+e.remark
+			msg += "\n"
+			
+		mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+		              to=fetcher.name+" <"+fetcher.mail+">",
+					  cc="Claes Ladefoged <claesnl@gmail.com>",
+		              subject="PizzaFridag has selected you!",
+		              body="Hello "+fetcher.name+"\nPizzaFriday has selected you to fetch the pizzas today. The list of people who is signed up is shown here:\n\n"+msg+"\n\nThe total number of people who have signed up is: "+str(pizzas)+" including you.\n\nThank you!")
 
 class FindFetcher(webapp2.RequestHandler):
 	def get(self):
@@ -271,6 +315,21 @@ class Register(webapp2.RequestHandler):
 			
 class DeRegister(webapp2.RequestHandler):
 	def get(self,e_id):
+		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
+		if(datetime.datetime.today().weekday() == 3 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 3): #+1 for GB time.
+			number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+			template_values2 = {
+				'number_of_eaters': number_of_eaters,
+			}
+			header = JINJA_ENVIRONMENT.get_template('header.html')
+			self.response.write(header.render())
+			header2 = JINJA_ENVIRONMENT.get_template('header_signup.html')
+			self.response.write(header2.render(template_values2))
+			self.response.write('<div class="alert alert-danger">You can not de-register after the deadline. Suck it up and eat your pizza!</div>')
+			footer = JINJA_ENVIRONMENT.get_template('footer.html')
+			self.response.write(footer.render())
+			return
+			
 		eater = PizzaEaters.get_by_id(int(e_id))
 		if not eater:
 			self.response.write('Could not find user with id: '+str(e_id))
@@ -311,7 +370,8 @@ app = webapp2.WSGIApplication([
 	('/admin/remove_eater/(\d+)', RemoveEater),
 	('/admin/find_fetcher', FindFetcher),
 	('/admin/clear_friday', ClearFriday),
-	('/cron/sunday', CronClearFriday),
+	('/cron/give_points', CronClearFriday),
+	('/cron/find_fetcher', CronFindFetcher),
 	('/de_register/(\d+)', DeRegister),
 	('/register', Register),
 	('/android/all_users', AndroidAllUsers),
