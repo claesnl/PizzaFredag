@@ -1,0 +1,61 @@
+<form action="/register" method="post" accept-charset="utf-8">
+	<input type="password" name="password" value="" id="password"><br>
+	<select name="attendee" id="attendee">
+		{% for e in eaters %}
+		{% if e.wants == False %}
+			<option value="{{ e.key.id() }}">{{ e.name }}</option>
+		{% endif %}
+		{% endfor %}
+	</select>
+	<br>
+	<input type="radio" id="persons1" name="persons" value="1" checked>1 person<br>
+	<input type="radio" id="personsx" name="persons" value="x">1 person - not able to buy<br>
+	<input type="radio" id="persons2" name="persons" value="2">multiple persons<br>
+	<select name="numguests" id="numguests">
+		<option value="1">You +1</option>
+		<option value="2">You +2</option>
+		<option value="3">You +3</option>
+		<option value="4">You +4</option>
+		<option value="5">You +5</option>
+		<option value="6">You +6</option>
+		<option value="7">You +7</option>
+		<option value="8">You +8</option>
+		<option value="9">You +9</option>
+	</select><br>
+	<input type="text" name="comment" value="" id="comment"><br>
+	<p><input type="submit" value="Register &rarr;"></p>
+</form>
+
+<hr />
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Navn</th><th>Can buy?</th><th>Extra?</th><th>Comment:</th><th>Points:</th><th>Last Fetch:</th></tr>
+{% for e in eaters_points %}
+	<tr>
+		<td>{{ e.name }}</td>
+		<td>
+		{% if not e.able_to_get %}
+			 <small>No</small>
+		{% endif %}
+		</td>
+		<td>
+		{% if e.extra != None %}
+			 +{{ e.extra}}
+		{% endif %}
+		</td>
+		<td>{{ e.remark }}</td>
+		<td>{{ e.points }}</td>
+		<td>{{ e.last_fetch }}</td>
+		<td><a class="remove" href="/de_register/{{ e.key.id() }}">Remove</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+<hr />
+
+<table border="1" cellspacing="5" cellpadding="5">
+	<tr><th>Eater:</th><th>Points:</th><th>Last Fetch:</th></tr>
+	{% for e in eaters_all_points %}
+		<tr><td>{{ e.name }}</td><td>{{ e.points }}</td><td>{{ e.last_fetch }}</td></tr>
+	{% endfor %}
+</table>

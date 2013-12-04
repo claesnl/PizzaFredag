@@ -1,0 +1,40 @@
+{% autoescape true %}
+<title>Pizza Friday - Points table</title>
+</head>
+<body>
+
+<header class="navbar navbar-inverse navbar-fixed-top bs-docs-nav" role="banner">
+<div class="container">
+<div class="navbar-header">
+  <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+  <a href="/" class="navbar-brand">PizzaFriday</a>
+</div>
+<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+  <ul class="nav navbar-nav">
+	<li>
+	  <a href="/participants">Who is signed up <span class="badge">{{ number_of_eaters }}</a>
+	</li>
+    <li>
+      <a href="/sign_up_for_pizza">Sign up for Pizza</a>
+    </li>
+    <li class="active">
+      <a href="/pizza_eaters">Points table</a>
+    </li>
+    <li>
+      <a href="/register_for_membership">Register for a user</a>
+    </li>
+  </ul>
+</nav>
+</div>
+</header>
+
+<div class="container">
+	<div id="main_middle">
+		<div class="centered">
+
+{% endautoescape %}

@@ -1,0 +1,24 @@
+{% autoescape true %}
+
+<div class="page-header">
+  <h1>Points table<br/><small>Figure out when its your time to buy</small></h1>
+</div>
+
+<div class="table-responsive">
+	<table class="table table-hover">
+		<tr>
+			<th>Eater:</th>
+			<th>Points:</th>
+			<th>Last Fetch:</th>
+		</tr>
+		{% for e in eaters_all_points %}
+		<tr>
+			<td>{{ e.name }}</td>
+			<td>{{ e.points }}</td>
+			<td>{{ e.last_fetch }}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
+{% endautoescape %}

@@ -1,15 +1,19 @@
 $(function() {
 	$('#numguests').hide();
+	$('#numguests_label').hide();
 	 
-    $('#persons1').click(function(){
+    $('#persons1').parent().click(function(){
 		$('#numguests').hide();
+		$('#numguests_label').hide();
 	});
-	$('#personsx').click(function(){
+	$('#personsx').parent().click(function(){
 		$('#numguests').hide();
+		$('#numguests_label').hide();
 	});
 	
-	$('#persons2').click(function(){
+	$('#persons2').parent().click(function(){
 		$('#numguests').show();
+		$('#numguests_label').show();
 	});
 	
 	$('.remove').click(function(){
@@ -17,4 +21,6 @@ $(function() {
 			return false;
 		}
 	});
+	
 });
+

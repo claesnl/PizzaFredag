@@ -18,6 +18,7 @@ import webapp2
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
+from google.appengine.api import mail
 
 import os
 import urllib
@@ -28,9 +29,6 @@ import datetime
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'])
-
-class Fridays(ndb.Model):
-    date = ndb.DateProperty(auto_now_add=True)
 
 class PizzaEaters(ndb.Model):
 	name = ndb.StringProperty()
@@ -43,17 +41,105 @@ class PizzaEaters(ndb.Model):
 	mail = ndb.StringProperty()
 
 class MainHandler(webapp2.RequestHandler):
+    def get(self):
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_index.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('index.html')
+		self.response.write(template.render())
+		
+class ShowParticipants(webapp2.RequestHandler):
     def get(self):		
 		eaters_points = PizzaEaters.query(PizzaEaters.wants == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch)
-		eaters_all_points = PizzaEaters.query().order(-PizzaEaters.points)
+		fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()			
+		last_fetcher = PizzaEaters.query().order(-PizzaEaters.last_fetch).get()
+		last_fetcher_id = None
+		if last_fetcher != None:
+			last_fetcher_id = last_fetcher.key.id
+		template_values = {
+			'eaters_points': eaters_points,
+			'last_fetcher': last_fetcher_id,
+			'fetcher': fetcher,
+	    }
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_participants.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('who_signed_up.html')
+		self.response.write(template.render(template_values))
+		footer = JINJA_ENVIRONMENT.get_template('footer.html')
+		self.response.write(footer.render())
+		
+class SignUpForPizza(webapp2.RequestHandler):
+    def get(self):		
 		eaters = PizzaEaters.query().order(PizzaEaters.name)
 		template_values = {
 			'eaters': eaters,
-			'eaters_points': eaters_points,
+	    }
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_signup.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('sign_up.html')
+		self.response.write(template.render(template_values))
+		footer = JINJA_ENVIRONMENT.get_template('footer.html')
+		self.response.write(footer.render())	
+		
+class ShowEaters(webapp2.RequestHandler):
+    def get(self):		
+		eaters_all_points = PizzaEaters.query().order(-PizzaEaters.points)
+		template_values = {
 			'eaters_all_points': eaters_all_points
 	    }
-		template = JINJA_ENVIRONMENT.get_template('index.html')
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_eaters.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('eaters.html')
 		self.response.write(template.render(template_values))
+		footer = JINJA_ENVIRONMENT.get_template('footer.html')
+		self.response.write(footer.render())
+		
+class RegisterForUser(webapp2.RequestHandler):
+	def get(self):
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_register.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('register.html')
+		self.response.write(template.render())
+		footer = JINJA_ENVIRONMENT.get_template('footer.html')
+		self.response.write(footer.render())
+	def post(self):
+		firstname = cgi.escape(self.request.get('firstname'))
+		lastname = cgi.escape(self.request.get('lastname'))
+		email = cgi.escape(self.request.get('email'))
+		mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+		              to="Claes Ladefoged <claesnl@gmail.com>",
+		              subject="PizzaFridag User Registration",
+		              body="Firstname: "+firstname+"\nLastname: "+lastname+"\nEmail: "+email)
+		self.redirect('/')
 		
 class AdminHandler(webapp2.RequestHandler):
     def get(self):	
@@ -73,12 +159,6 @@ class AdminHandler(webapp2.RequestHandler):
 			self.response.write(template.render(template_values))
 		else:
 			self.response.write('<a href="%s">Sign in</a>.' % users.create_login_url('/admin'))
-
-class CreateFriday(webapp2.RequestHandler):
-	def get(self):
-		friday = Fridays()
-		friday.put()
-		self.redirect('/')
 		
 class ClearFriday(webapp2.RequestHandler):
 	def post(self):
@@ -125,20 +205,23 @@ class FindFetcher(webapp2.RequestHandler):
 		if user:
 			if users.is_current_user_admin():				
 				fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()
-				eaters = PizzaEaters.query(PizzaEaters.wants == True)
-				pizzas = 0
-				for e in eaters:
-					pizzas += 1
-					if e.extra != None:
-						pizzas += e.extra
-				eaters = PizzaEaters.query(PizzaEaters.wants == True)
-				template_values = {
-					'fetcher': fetcher.name,
-					'nrOfPizzas': pizzas,
-					'eaters': eaters
-				}
-				template = JINJA_ENVIRONMENT.get_template('who_fetches.html')
-				self.response.write(template.render(template_values))
+				if fetcher != None:
+					eaters = PizzaEaters.query(PizzaEaters.wants == True)
+					pizzas = 0
+					for e in eaters:
+						pizzas += 1
+						if e.extra != None:
+							pizzas += e.extra
+					eaters = PizzaEaters.query(PizzaEaters.wants == True)
+					template_values = {
+						'fetcher': fetcher.name,
+						'nrOfPizzas': pizzas,
+						'eaters': eaters
+					}
+					template = JINJA_ENVIRONMENT.get_template('who_fetches.html')
+					self.response.write(template.render(template_values))
+				else:
+					self.response.write('Sorry, no users have signed up.')
 				
 			else:
 				self.response.write('Sorry, ' + user.nickname() + '. You need to be admin.')
@@ -182,26 +265,22 @@ class Register(webapp2.RequestHandler):
 			else:
 				eater.able_to_get = True
 			eater.put()
-			self.redirect('/')
+			self.redirect('/participants')
 		else:
 			self.response.write('Sorry, you need the password. <a href="/">Back</a>')
 			
 class DeRegister(webapp2.RequestHandler):
 	def get(self,e_id):
-		user = users.get_current_user()
-		if user:
-			eater = PizzaEaters.get_by_id(int(e_id))
-			if not eater:
-				self.response.write('Could not find user with id: '+str(e_id))
-			else:
-				eater.remark = ''
-				eater.wants = False
-				eater.remark = ''
-				eater.extra = None
-				eater.put()
-				self.redirect('/')
+		eater = PizzaEaters.get_by_id(int(e_id))
+		if not eater:
+			self.response.write('Could not find user with id: '+str(e_id))
 		else:
-			self.response.write('<a href="%s">Sign in</a>.' % users.create_login_url('/'))
+			eater.remark = ''
+			eater.wants = False
+			eater.remark = ''
+			eater.extra = None
+			eater.put()
+			self.redirect('/participants')
 
 class AndroidAllUsers(webapp2.RequestHandler):
 	def get(self):
@@ -224,7 +303,10 @@ class AndroidParticipants(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
-	('/create_friday', CreateFriday),
+	('/participants', ShowParticipants),
+	('/sign_up_for_pizza', SignUpForPizza),
+	('/pizza_eaters', ShowEaters),
+	('/register_for_membership', RegisterForUser),
 	('/admin/add_eater', CreateEater),
 	('/admin/remove_eater/(\d+)', RemoveEater),
 	('/admin/find_fetcher', FindFetcher),

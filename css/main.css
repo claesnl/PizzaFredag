@@ -1,3 +1,41 @@
 .commentbox { height: 50px; }
 
 .boxg { padding-left: 0px; }
+
+html .pizzafriday { 
+  background: url(/img/pizza2.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  text-align: center;
+}
+
+#main_middle {	
+	height: 100%;
+	position: absolute;
+	margin: 20px;
+}
+.container .logo_active {
+	background-color: #080808;
+}
+#main_middle .centered {
+  position: relative;
+  margin: 0 auto;
+  margin-top: 60px;
+  height: 206px;
+  
+}
+.pizzafriday #main_middle h1,
+.pizzafriday #main_middle h2 {
+  font-family: 'Open Sans';
+  font-weight: 300;
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+}
+.pizzafriday #main_middle h1 {
+  font-size: 46px;
+}
+.pizzafriday #main_middle h2 {
+  font-size: 28px;
+}

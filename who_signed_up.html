@@ -1,0 +1,49 @@
+{% autoescape true %}
+
+<div class="page-header">
+  <h1>Who is signed up<br/><small>Check who has already secured a spot at the table</small></h1>
+</div>
+
+<div class="table-responsive">
+	<table id="fetch_table" class="table">
+		<tr>
+			<th>Navn</th>
+			<th>Can buy?</th>
+			<th>Extra?</th>
+			<th>Comment:</th>
+			<th>Points:</th>
+			<th>Last Fetch:</th>
+			<th>De-register:</th>
+		</tr>
+		{% for e in eaters_points %}
+			{% if fetcher.key.id == e.key.id %}
+				<tr class="success">
+			{% else %}
+				<tr>
+			{% endif %}
+			<td>
+				{{ e.name }}
+				{% if last_fetcher == e.key.id %}
+					(Bought last time)
+				{% endif %}
+			</td>
+			<td>
+				{% if not e.able_to_get %}
+			 		<small>No</small>
+				{% endif %}
+			</td>
+			<td>
+				{% if e.extra != None %}
+			 		+{{ e.extra}}
+				{% endif %}
+			</td>
+			<td>{{ e.remark }}</td>
+			<td>{{ e.points }}</td>
+			<td>{{ e.last_fetch }}</td>
+			<td><a class="remove" href="/de_register/{{ e.key.id() }}">Remove</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
+{% endautoescape %}

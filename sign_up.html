@@ -1,0 +1,60 @@
+<div class="page-header">
+  <h1>Sign up for Pizza<br/><small>Secure yourself a spot at the table</small></h1>
+</div>
+
+<form action="/register" method="post" accept-charset="utf-8" role="form">
+	<div class="form-group">
+		<label for="password">Input the signup password</label>
+		<input type="password" name="password" value="" id="password" class="form-control" placeholder="Password">
+	</div>
+	
+	<div class="form-group">
+		<label for="attendee">Select your name from the dropdown list</label>
+		<select name="attendee" id="attendee" class="form-control">
+			{% for e in eaters %}
+			{% if e.wants == False %}
+				<option value="{{ e.key.id() }}">{{ e.name }}</option>
+			{% endif %}
+			{% endfor %}
+		</select>
+	</div>
+	
+	<div class="form-group">
+		
+		<label for="persons1">How many? </label><br>
+		<div class="btn-group" data-toggle="buttons">
+		  <label class="btn btn-primary active">
+		    <input type="radio" id="persons1" name="persons" value="1" checked>1 person
+		  </label>
+		  <label class="btn btn-danger">
+		    <input type="radio" id="personsx" name="persons" value="x">1 person - not able to buy
+		  </label>
+		  <label class="btn btn-warning">
+			<input type="radio" id="persons2" name="persons" value="2"> Multiple persons
+		  </label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label id="numguests_label" for="numguests">How many - besides you? </label>
+		<select name="numguests" id="numguests" class="form-control">
+			<option value="1">You +1</option>
+			<option value="2">You +2</option>
+			<option value="3">You +3</option>
+			<option value="4">You +4</option>
+			<option value="5">You +5</option>
+			<option value="6">You +6</option>
+			<option value="7">You +7</option>
+			<option value="8">You +8</option>
+			<option value="9">You +9</option>
+		</select>
+	</div>
+	
+	<div class="form-group">
+		<label for="comment">Comment (optional)</label>
+		</label><input type="text" name="comment" value="" id="comment" class="form-control" placeholder="Input your comment here">
+	</div>
+	
+	<div class="form-group">
+		<input type="submit" class="btn btn-lg btn-success btn-block" value="Register">
+	</div>
+</form>
