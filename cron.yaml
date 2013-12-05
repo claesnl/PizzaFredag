@@ -3,9 +3,9 @@ cron:
 - description: give points
   url: /cron/give_points
   timezone: Europe/Copenhagen
-  schedule: every thursday 13:00  #friday 13:00
+  schedule: every friday 13:00
   
 - description: find fetcher
   url: /cron/find_fetcher
   timezone: Europe/Copenhagen
-  schedule: every thursday 11:00 #friday 11:00
+  schedule: every friday 11:00

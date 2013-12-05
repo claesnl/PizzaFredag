@@ -26,7 +26,6 @@ import jinja2
 import cgi
 import datetime
 import time
-import locale
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -85,7 +84,6 @@ class ShowParticipants(webapp2.RequestHandler):
 		
 class SignUpForPizza(webapp2.RequestHandler):
     def get(self):		
-		self.response.write(locale.getlocale())
 		eaters = PizzaEaters.query().order(PizzaEaters.name)
 		template_values = {
 			'eaters': eaters,
@@ -99,7 +97,7 @@ class SignUpForPizza(webapp2.RequestHandler):
 		header2 = JINJA_ENVIRONMENT.get_template('header_signup.html')
 		self.response.write(header2.render(template_values2))
 		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
-		if(datetime.datetime.today().weekday() == 3 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 3): #+1 for GB time. 
+		if(datetime.datetime.today().weekday() == 4 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 4): #+1 for GB time. 
 			template = JINJA_ENVIRONMENT.get_template('sign_up_too_late.html')
 			self.response.write(template.render())
 		else:
@@ -316,7 +314,7 @@ class Register(webapp2.RequestHandler):
 class DeRegister(webapp2.RequestHandler):
 	def get(self,e_id):
 		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
-		if(datetime.datetime.today().weekday() == 3 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 3): #+1 for GB time.
+		if(datetime.datetime.today().weekday() == 4 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 4): #+1 for GB time.
 			number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
 			template_values2 = {
 				'number_of_eaters': number_of_eaters,
