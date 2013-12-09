@@ -26,6 +26,10 @@ handlers:
   script: main.app
   login: admin
 
+- url: /cron/remind_eaters
+  script: main.app
+  login: admin
+
 - url: .*
   script: main.app
 

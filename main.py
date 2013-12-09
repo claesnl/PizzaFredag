@@ -241,6 +241,17 @@ class CronFindFetcher(webapp2.RequestHandler):
 		              subject="PizzaFridag has selected you!",
 		              body="Hello "+fetcher.name+"\nPizzaFriday has selected you to fetch the pizzas today. The list of people who is signed up is shown here:\n\n"+msg+"\n\nThe total number of people who have signed up is: "+str(pizzas)+" including you.\n\nThank you!")
 
+class CronReminder(webapp2.RequestHandler):
+	def get(self):
+		eaters = PizzaEaters.query(PizzaEaters.wants == False)
+		pizzas = 0
+		msg = "You did not sign up for pizza this week. Sign up closes in 1 hour (at 11.00).\n\nKind regards, PizzaFredag"
+		for e in eaters:
+			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+					       to=e.name+" <"+e.mail+">",
+					       subject="Forgot to sign up for PizzaFridag?",
+					       body="Hello "+e.name+",\n\n"+msg)
+
 class FindFetcher(webapp2.RequestHandler):
 	def get(self):
 		user = users.get_current_user()
@@ -280,6 +291,10 @@ class CreateEater(webapp2.RequestHandler):
 			eater.points = 0
 			eater.wants = False
 			eater.put()
+			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+			              to=eater.name+" <"+eater.mail+">",
+			              subject="User created at PizzaFridag!",
+			              body="Hello "+eater.name+", \nYou are now a user at PizzaFriday. \nWhen you sign up for pizza you must use the password: pizza")
 			self.redirect('/admin')
 		else:
 			self.response.write('Sorry, you need to be admin.')
@@ -370,6 +385,7 @@ app = webapp2.WSGIApplication([
 	('/admin/clear_friday', ClearFriday),
 	('/cron/give_points', CronClearFriday),
 	('/cron/find_fetcher', CronFindFetcher),
+	('/cron/remind_eaters', CronReminder),
 	('/de_register/(\d+)', DeRegister),
 	('/register', Register),
 	('/android/all_users', AndroidAllUsers),
