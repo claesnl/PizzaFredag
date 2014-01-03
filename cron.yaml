@@ -8,9 +8,9 @@ cron:
 - description: find fetcher
   url: /cron/find_fetcher
   timezone: Europe/Copenhagen
-  schedule: every friday 11:00
+  schedule: every friday 10:30
   
 - description: reminder
   url: /cron/remind_eaters
   timezone: Europe/Copenhagen
-  schedule: every friday 10:00
+  schedule: every friday 9:30

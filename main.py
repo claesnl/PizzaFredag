@@ -97,7 +97,7 @@ class SignUpForPizza(webapp2.RequestHandler):
 		header2 = JINJA_ENVIRONMENT.get_template('header_signup.html')
 		self.response.write(header2.render(template_values2))
 		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
-		if(datetime.datetime.today().weekday() == 4 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 4): #+1 for GB time. 
+		if(datetime.datetime.today().weekday() == 4 and (datetime.datetime.now().hour >= 10 or datetime.datetime.now().hour >= 9 and datetime.datetime.now().minute >= 30) or datetime.datetime.today().weekday() > 4): #+1 for GB time. 
 			template = JINJA_ENVIRONMENT.get_template('sign_up_too_late.html')
 			self.response.write(template.render())
 		else:
@@ -143,9 +143,9 @@ class RegisterForUser(webapp2.RequestHandler):
 		firstname = cgi.escape(self.request.get('firstname'))
 		lastname = cgi.escape(self.request.get('lastname'))
 		email = cgi.escape(self.request.get('email'))
-		mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+		mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
 		              to="Claes Ladefoged <claesnl@gmail.com>",
-		              subject="PizzaFridag User Registration",
+		              subject="PizzaFredag User Registration",
 		              body="Firstname: "+firstname+"\nLastname: "+lastname+"\nEmail: "+email)
 		self.redirect('/')
 		
@@ -218,14 +218,17 @@ class CronFindFetcher(webapp2.RequestHandler):
 		fetcher = PizzaEaters.query(PizzaEaters.wants == True, PizzaEaters.able_to_get == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()
 		if fetcher == None:
 			fetcher = PizzaEaters.query(PizzaEaters.wants == True).order(-PizzaEaters.points).order(PizzaEaters.last_fetch).get()
-			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+			mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
 			              to="Claes Ladefoged <claesnl@gmail.com>",
-			              subject="PizzaFridag: No one volunteered.",
+			              subject="PizzaFredag: No one volunteered.",
 			              body="Who fetched then (according to system): "+fetcher.name+"\nEmail: "+fetcher.mail)
 		eaters = PizzaEaters.query(PizzaEaters.wants == True)
 		pizzas = 0
 		msg = ""
+		ccs = "" 
 		for e in eaters:
+			if e.mail != fetcher.mail:
+				ccs += e.name+" <"+e.mail+">, "
 			pizzas += 1
 			msg += e.name
 			if e.extra != None:
@@ -235,21 +238,25 @@ class CronFindFetcher(webapp2.RequestHandler):
 				msg += " Comment: "+e.remark
 			msg += "\n"
 			
-		mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+		mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
 		              to=fetcher.name+" <"+fetcher.mail+">",
 					  cc="Claes Ladefoged <claesnl@gmail.com>",
-		              subject="PizzaFridag has selected you!",
-		              body="Hello "+fetcher.name+"\nPizzaFriday has selected you to fetch the pizzas today. The list of people who is signed up is shown here:\n\n"+msg+"\n\nThe total number of people who have signed up is: "+str(pizzas)+" including you.\n\nThank you!")
+		              subject="PizzaFredag has selected you!",
+		              body="Hello "+fetcher.name+"\nPizzaFredag has selected you to fetch the pizzas today. The list of people who is signed up is shown here:\n\n"+msg+"\n\nThe total number of people who have signed up is: "+str(pizzas)+" including you.\n\nThe Pizza should be ready at 12:15 - or otherwise announced to all participants.\n\nThank you!")
+		mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
+		              to=ccs,
+		              subject="PizzaFredag has selected "+fetcher.name,
+		              body="Hello all Pizza Eaters!\nPizzaFredag has selected "+fetcher.name+" to fetch the pizzas today. The list of people who is signed up is shown here:\n\n"+msg+"\n\nThe total number of people who have signed up is: "+str(pizzas)+" including you.\n\nThe Pizza should be ready at 12:15 - or otherwise announced to all participants.\n\nThank you!")
 
 class CronReminder(webapp2.RequestHandler):
 	def get(self):
 		eaters = PizzaEaters.query(PizzaEaters.wants == False)
 		pizzas = 0
-		msg = "You did not sign up for pizza this week. Sign up closes in 1 hour (at 11.00).\n\nKind regards, PizzaFredag"
+		msg = "You did not sign up for pizza this week. Sign up closes in 1 hour (at 10.30).\n\nKind regards, PizzaFredag"
 		for e in eaters:
-			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+			mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
 					       to=e.name+" <"+e.mail+">",
-					       subject="Forgot to sign up for PizzaFridag?",
+					       subject="Forgot to sign up for PizzaFredag?",
 					       body="Hello "+e.name+",\n\n"+msg)
 
 class FindFetcher(webapp2.RequestHandler):
@@ -291,10 +298,10 @@ class CreateEater(webapp2.RequestHandler):
 			eater.points = 0
 			eater.wants = False
 			eater.put()
-			mail.send_mail(sender="PizzaFriday <claesnl@gmail.com>",
+			mail.send_mail(sender="PizzaFredag <claesnl@gmail.com>",
 			              to=eater.name+" <"+eater.mail+">",
-			              subject="User created at PizzaFridag!",
-			              body="Hello "+eater.name+", \nYou are now a user at PizzaFriday. \nWhen you sign up for pizza you must use the password: pizza")
+			              subject="User created at PizzaFredag!",
+			              body="Hello "+eater.name+", \nYou are now a user at PizzaFredag. \nWhen you sign up for pizza you must use the password: pizza")
 			self.redirect('/admin')
 		else:
 			self.response.write('Sorry, you need to be admin.')
@@ -329,7 +336,7 @@ class Register(webapp2.RequestHandler):
 class DeRegister(webapp2.RequestHandler):
 	def get(self,e_id):
 		# Check if its friday (wd: 4) and if the time is past 11 (h: >= 10)
-		if(datetime.datetime.today().weekday() == 4 and datetime.datetime.now().hour >= 10 or datetime.datetime.today().weekday() > 4): #+1 for GB time.
+		if(datetime.datetime.today().weekday() == 4 and (datetime.datetime.now().hour >= 10 or datetime.datetime.now().hour >= 9 and datetime.datetime.now().minute >= 30) or datetime.datetime.today().weekday() > 4): #+1 for GB time.
 			number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
 			template_values2 = {
 				'number_of_eaters': number_of_eaters,
