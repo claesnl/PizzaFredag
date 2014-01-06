@@ -125,6 +125,25 @@ class ShowEaters(webapp2.RequestHandler):
 		footer = JINJA_ENVIRONMENT.get_template('footer.html')
 		self.response.write(footer.render())
 		
+class ShowEatersRatio(webapp2.RequestHandler):
+    def get(self):		
+		eaters_all_points = PizzaEaters.query().order(-PizzaEaters.points).order(PizzaEaters.last_fetch)
+		template_values = {
+			'eaters_all_points': eaters_all_points
+	    }
+		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
+		template_values2 = {
+			'number_of_eaters': number_of_eaters,
+		}
+		header = JINJA_ENVIRONMENT.get_template('header.html')
+		self.response.write(header.render())
+		header2 = JINJA_ENVIRONMENT.get_template('header_eaters.html')
+		self.response.write(header2.render(template_values2))
+		template = JINJA_ENVIRONMENT.get_template('eaters_ratio.html')
+		self.response.write(template.render(template_values))
+		footer = JINJA_ENVIRONMENT.get_template('footer.html')
+		self.response.write(footer.render())
+				
 class RegisterForUser(webapp2.RequestHandler):
 	def get(self):
 		number_of_eaters = PizzaEaters.query(PizzaEaters.wants == True).count()
@@ -385,6 +404,7 @@ app = webapp2.WSGIApplication([
 	('/participants', ShowParticipants),
 	('/sign_up_for_pizza', SignUpForPizza),
 	('/pizza_eaters', ShowEaters),
+	('/pizza_eaters_ratio', ShowEatersRatio),
 	('/register_for_membership', RegisterForUser),
 	('/admin/add_eater', CreateEater),
 	('/admin/remove_eater/(\d+)', RemoveEater),
